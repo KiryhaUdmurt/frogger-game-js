@@ -11,6 +11,7 @@ let currentIndex = 76;
 const width = 9;
 let timerId;
 let currentTime = 20;
+let outcomeTimerId;
 
 function moveFrog(e) {
   squares[currentIndex].classList.remove("frog");
@@ -35,8 +36,6 @@ function moveFrog(e) {
   squares[currentIndex].classList.add("frog");
 }
 
-document.addEventListener("keyup", moveFrog);
-
 function autoMoveElements() {
   currentTime--;
   timeLeftDisplay.textContent = currentTime;
@@ -44,7 +43,11 @@ function autoMoveElements() {
   logsRight.forEach((logRight) => moveLogRight(logRight));
   carsLeft.forEach((carLeft) => moveCarLeft(carLeft));
   carsRight.forEach((carRight) => moveCarRight(carRight));
+}
+
+function checkOutcomes() {
   lose();
+  win();
 }
 
 function moveLogLeft(logLeft) {
@@ -143,10 +146,12 @@ function lose() {
   if (
     squares[currentIndex].classList.contains("c1") ||
     squares[currentIndex].classList.contains("l4") ||
-    squares[currentIndex].classList.contains("l5")
+    squares[currentIndex].classList.contains("l5") ||
+    currentTime <= 0
   ) {
     result.textContent = "Вы проиграли((0";
     clearInterval(timerId);
+    clearInterval(outcomeTimerId);
     squares[currentIndex].classList.remove("frog");
     document.removeEventListener("keyup", moveFrog);
   }
@@ -160,4 +165,16 @@ function win() {
   }
 }
 
-timerId = setInterval(autoMoveElements, 1000);
+startPauseBtn.addEventListener("click", () => {
+  if (timerId) {
+    clearInterval(timerId);
+    clearInterval(outcomeTimerId);
+    outcomeTimerId = null;
+    timerId = null;
+    document.removeEventListener("keyup", moveFrog);
+  } else {
+    timerId = setInterval(autoMoveElements, 1000);
+    outcomeTimerId = setInterval(checkOutcomes, 50);
+    document.addEventListener("keyup", moveFrog);
+  }
+});
